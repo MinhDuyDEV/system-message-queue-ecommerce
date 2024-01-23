@@ -21,6 +21,7 @@ const connectToRabbitMQForTest = async () => {
     const msg = "Hello world";
     await channel.assertQueue(queue, { durable: true });
     await channel.sendToQueue(queue, Buffer.from(msg));
+    // Connection close
     await connection.close();
   } catch (error) {
     console.error("Error connecting to RabbitMQ", error);
