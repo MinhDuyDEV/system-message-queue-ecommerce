@@ -24,16 +24,34 @@ const messageService = {
       const { channel, connection } = await connectToRabbitMQ();
       const notificationQueue = "notification-queue-process"; // assert notification queue
 
+      // * 1. TTL (Time To Live)
       // const timeout = 15000; // 15s
-      const timeout = 5000; // 5s
-      setTimeout(() => {
-        channel.consume(notificationQueue, (msg) => {
+      // const timeout = 5000; // 5s
+      // setTimeout(() => {
+      //   channel.consume(notificationQueue, (msg) => {
+      //     console.log(
+      //       `SEND notification successfully processed: ${msg.content.toString()}`
+      //     );
+      //     channel.ack(msg);
+      //   });
+      // }, timeout);
+
+      // * 2. Logic
+      channel.consume(notificationQueue, (msg) => {
+        try {
+          const numberTest = Math.random();
+          console.log({ numberTest });
+          if (numberTest < 0.8) {
+            throw new Error("Send notification failed 1, pls hot fix");
+          }
           console.log(
             `SEND notification successfully processed: ${msg.content.toString()}`
           );
           channel.ack(msg);
-        });
-      }, timeout);
+        } catch (error) {
+          channel.nack(msg, false, false);
+        }
+      });
     } catch (error) {
       console.error(error);
     }
@@ -62,7 +80,7 @@ const messageService = {
         queueResult.queue,
         (msg) => {
           console.log(
-            `SEND notification failed, pls hot fix: ${msg.content.toString()}`
+            `SEND notification failed 2, pls hot fix: ${msg.content.toString()}`
           );
         },
         {
